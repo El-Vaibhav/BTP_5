@@ -19,7 +19,8 @@ from sklearn.metrics import accuracy_score, confusion_matrix, classification_rep
 import seaborn as sns
 
 # Read the dataset
-df = pd.read_csv("C:\\Users\\HP\\OneDrive\\Desktop\\BTP_5thsem\\KDDTrain+.txt", header=None)
+
+df = pd.read_csv("C:\\Users\\HP\\OneDrive\\Desktop\\BTP_5thsem\\BTP\\KDDTrain+.txt", header=None)
 
 # Display the first few rows of the dataframe
 print(df.head())

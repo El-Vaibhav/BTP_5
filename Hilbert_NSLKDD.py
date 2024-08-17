@@ -13,7 +13,7 @@ from sklearn.naive_bayes import GaussianNB, MultinomialNB, BernoulliNB
 from sklearn.tree import DecisionTreeClassifier
 
 # Read the dataset
-df = pd.read_csv("C:\\Users\\HP\\OneDrive\\Desktop\\BTP_5thsem\\KDDTrain+.txt", header=None)
+df = pd.read_csv("C:\\Users\\HP\\OneDrive\\Desktop\\BTP_5thsem\\BTP\\KDDTrain+.txt", header=None)
 
 # Drop non-numeric columns, keep the last column for labels
 df_numeric = df.drop(columns=[1, 2, 3, df.columns[-2]])

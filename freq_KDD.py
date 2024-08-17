@@ -14,7 +14,7 @@ from sklearn.metrics import accuracy_score, confusion_matrix, classification_rep
 import seaborn as sns
 
 # Read the dataset
-df = pd.read_csv("C:\\Users\\HP\\OneDrive\\Desktop\\BTP_5thsem\\data.txt", header=None)
+df = pd.read_csv("C:\\Users\\HP\\OneDrive\\Desktop\\BTP_5thsem\\BTP\\data.txt", header=None)
 
 # Drop non-numeric columns, keep the last column for labels
 df_numeric = df.drop(columns=[1, 2, 3, df.columns[-1]])
