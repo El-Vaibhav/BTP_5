@@ -26,16 +26,17 @@ X_test = scaler.transform(X_test)
 
 # Initialize classifiers
 classifiers = {
-    'Logistic Regression': LogisticRegression(),
-    'K-Nearest Neighbors': KNeighborsClassifier(),
-    'Decision Tree': DecisionTreeClassifier(),
+    # 'Logistic Regression': LogisticRegression(),
+    # 'K-Nearest Neighbors': KNeighborsClassifier(),
+    # 'Decision Tree': DecisionTreeClassifier(),
     'Random Forest': RandomForestClassifier(),
-    'Support Vector Machine': SVC(),
-    'Naive Bayes': GaussianNB()
+    # 'Support Vector Machine': SVC(),
+    # 'Naive Bayes': GaussianNB()
 }
 
 # Train and evaluate each classifier
 for name, clf in classifiers.items():
+    print(f"Classifier : {name}")
     clf.fit(X_train, y_train)
     y_pred = clf.predict(X_test)
     print(f"\n{name}:")
