@@ -1,27 +1,32 @@
-import pandas as pd
 import numpy as np
 import pywt
+from sklearn.preprocessing import StandardScaler
 from sklearn.model_selection import train_test_split
-from sklearn.ensemble import RandomForestClassifier
-from sklearn.neighbors import KNeighborsClassifier
-from sklearn.linear_model import LogisticRegression
-from sklearn.naive_bayes import GaussianNB, MultinomialNB, BernoulliNB
-from sklearn.tree import DecisionTreeClassifier
-from sklearn.ensemble import RandomForestClassifier, BaggingClassifier, AdaBoostClassifier
-from sklearn.metrics import accuracy_score, confusion_matrix, classification_report
-from sklearn.preprocessing import OneHotEncoder, StandardScaler
 from sklearn.decomposition import PCA
 from sklearn.feature_selection import SelectKBest, f_classif
+from sklearn.ensemble import RandomForestClassifier, BaggingClassifier, AdaBoostClassifier
+from sklearn.tree import DecisionTreeClassifier
+from sklearn.neural_network import MLPClassifier
+from sklearn.experimental import enable_hist_gradient_boosting
+from sklearn.ensemble import HistGradientBoostingClassifier
+import lightgbm as lgb
+import pandas as pd
+from sklearn.preprocessing import OneHotEncoder
+import catboost
+from sklearn.metrics import accuracy_score, confusion_matrix, classification_report
 import seaborn as sns
 import matplotlib.pyplot as plt
 import psutil
 import time
 import scipy.stats as stats
+import xgboost as xgb
+from codecarbon import EmissionsTracker
 from codecarbon import EmissionsTracker
 
 
 # Function to preprocess data and apply wavelet transform
 def preprocess_data(filepath, encoder=None, fit_encoder=False):
+
     df = pd.read_csv(filepath, header=None)
 
     # Extract categorical columns (columns 1, 2, 3) and apply one-hot encoding
@@ -36,10 +41,8 @@ def preprocess_data(filepath, encoder=None, fit_encoder=False):
     df_encoded = pd.DataFrame(categorical_encoded, index=df.index)
 
     # Combine one-hot encoded columns with the rest of the data (numeric columns)
-    l = [i for i in range(1, 23)]
-    l.append(df.columns[-2])
 
-    df_combined = pd.concat([df.drop(columns=l), df_encoded], axis=1)
+    df_combined = pd.concat([df.drop(columns=[1,2,3,df.columns[-2]]), df_encoded], axis=1)
 
     # Extract labels
     labels = df[df.columns[-2]]
@@ -47,47 +50,76 @@ def preprocess_data(filepath, encoder=None, fit_encoder=False):
     # Convert numeric data to numpy array
     data_numeric = df_combined.values
 
-    # Apply Wavelet Transform
+    # Apply Wavelet Transform and extract features
     wavelet_coeffs = []
     percentage_deviation = []
     entropy_values = []
     skewness_values = []
     kurtosis_values = []
+    mean_values = []
+    std_dev_values = []
+    var_values = []
+    max_values = []
+    min_values = []
+    range_values = []
+    mad_values = []  # Mean Absolute Deviation
 
     for row in data_numeric:
         coeffs = pywt.wavedec(row, 'db4', level=4)  # Use 'db4' wavelet
         coeffs_flat = np.hstack(coeffs)
 
-        # computing statistical features
-        skewness_coeffs = stats.skew(coeffs_flat)
-        kurtosis_coeffs = stats.kurtosis(coeffs_flat)
-
-        # Compute percentage deviation
+        # Compute additional statistical features
         mean_coeffs = np.mean(coeffs_flat)
-        percent_dev = np.abs(coeffs_flat - mean_coeffs) / mean_coeffs * 100
-        percentage_deviation.append(np.mean(percent_dev))  # Store mean percentage deviation
+        std_dev_coeffs = np.std(coeffs_flat)
+        var_coeffs = np.var(coeffs_flat)
+        max_coeffs = np.max(coeffs_flat)
+        min_coeffs = np.min(coeffs_flat)
+        range_coeffs = max_coeffs - min_coeffs
+        mad_coeffs = np.mean(np.abs(coeffs_flat - mean_coeffs))
+
+        percentage_dev = np.abs(coeffs_flat - mean_coeffs) / mean_coeffs * 100
 
         # Compute entropy
         entropy = stats.entropy(np.abs(coeffs_flat))
-        entropy_values.append(entropy)
 
-        # compute statistical values
+        # Compute skewness and kurtosis
+        skewness_coeffs = stats.skew(coeffs_flat)
+        kurtosis_coeffs = stats.kurtosis(coeffs_flat)
+
+        # Store features
+        wavelet_coeffs.append(coeffs_flat)
+        percentage_deviation.append(np.mean(percentage_dev))
+        entropy_values.append(entropy)
         skewness_values.append(skewness_coeffs)
         kurtosis_values.append(kurtosis_coeffs)
-        wavelet_coeffs.append(coeffs_flat)
+        mean_values.append(mean_coeffs)
+        std_dev_values.append(std_dev_coeffs)
+        var_values.append(var_coeffs)
+        max_values.append(max_coeffs)
+        min_values.append(min_coeffs)
+        range_values.append(range_coeffs)
+        mad_values.append(mad_coeffs)
 
-    # Convert coefficients to numpy array
+    # Convert features to numpy array
     wavelet_coeffs = np.array(wavelet_coeffs)
 
-    additional_features = np.column_stack([percentage_deviation, entropy_values, skewness_values, kurtosis_values])
+    additional_features = np.column_stack([
+        percentage_deviation, entropy_values, skewness_values, kurtosis_values,
+        mean_values, std_dev_values, var_values, max_values, min_values,
+        range_values, mad_values
+    ])
 
     final_data = np.hstack([wavelet_coeffs, additional_features])
 
     return final_data, labels, encoder
 
-
 # Load and preprocess data
-X, y, encoder = preprocess_data("C:\\Users\\tabis\\OneDrive\\Desktop\\BTP_5\\KDDTrain+.txt", fit_encoder=True)
+X, y, encoder = preprocess_data("C:\\Users\\HP\\OneDrive\\Desktop\\BTP_5thsem\\BTP\\KDDTrain+.txt", fit_encoder=True)
+
+# print(X)
+
+# label_encoder = LabelEncoder()
+# y_encoded = label_encoder.fit_transform(y)
 
 # Normalize/Standardize the data
 scaler = StandardScaler()
@@ -107,20 +139,29 @@ X_train_kbest = kbest.fit_transform(X_train_pca, y_train)
 X_test_kbest = kbest.transform(X_test_pca)
 
 # Initialize classifiers with default parameters
+
 classifiers = {
-    'KNN': KNeighborsClassifier(n_neighbors=5),
+    'RandomForest': RandomForestClassifier(n_estimators=100),
+    # 'SVM': SVC(),
+    # 'KNN': KNeighborsClassifier(n_neighbors=5),
+    # 'DecisionTree': DecisionTreeClassifier(),
+    # 'RandomForest': RandomForestClassifier(n_estimators=10)
+    # 'Bagging': BaggingClassifier(estimator=DecisionTreeClassifier(), n_estimators=10),
+    # 'Boosting': AdaBoostClassifier(estimator=DecisionTreeClassifier(), n_estimators=10),
+    # 'CatBoost': catboost.CatBoostClassifier(learning_rate=0.1, depth=6, iterations=100, verbose=0),
+    # 'MLP': MLPClassifier(hidden_layer_sizes=(100, 50), max_iter=500, random_state=42),
 }
+
 
 # Train and evaluate each classifier
 for name, clf in classifiers.items():
     print(f"Training {name}...")
 
     # Start CodeCarbon tracker
-    tracker = EmissionsTracker()
-    tracker.start()
+    # tracker = EmissionsTracker()
+    # tracker.start()
 
     clf.fit(X_train_kbest, y_train)
-
 
 
     # Evaluate on test data
@@ -129,10 +170,10 @@ for name, clf in classifiers.items():
     cm_test = confusion_matrix(y_test, y_test_pred)
 
     # Stop CodeCarbon tracker and get energy consumption
-    emissions = tracker.stop()
+    # emissions = tracker.stop()
 
-    # Print energy consumption
-    print(f"Energy consumed for {name}: {emissions:.6f} kWh")
+    # # Print energy consumption
+    # print(f"Energy consumed for {name}: {emissions:.6f} kWh")
 
     # Plot confusion matrix
     sns.heatmap(cm_test, annot=True, fmt='d', cmap='Blues', xticklabels=np.unique(y_test),
