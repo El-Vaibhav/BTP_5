@@ -22,7 +22,11 @@ import scipy.stats as stats
 import xgboost as xgb
 from codecarbon import EmissionsTracker
 from codecarbon import EmissionsTracker
+import warnings
 
+# Suppress User and Runtime warnings if necessary
+warnings.filterwarnings("ignore", category=UserWarning)
+warnings.filterwarnings("ignore", category=RuntimeWarning)
 
 # Function to preprocess data and apply wavelet transform
 def preprocess_data(filepath, encoder=None, fit_encoder=False):
@@ -114,24 +118,23 @@ def preprocess_data(filepath, encoder=None, fit_encoder=False):
     return final_data, labels, encoder
 
 # Load and preprocess data
-X, y, encoder = preprocess_data("C:\\Users\\HP\\OneDrive\\Desktop\\BTP_5thsem\\BTP\\KDDTrain+.txt", fit_encoder=True)
+# X, y, encoder = preprocess_data("C:\\Users\\HP\\OneDrive\\Desktop\\BTP_5thsem\\BTP\\KDDTrain+.txt", fit_encoder=True)
 
-# print(X)
+# Load and preprocess training data from KDDTrain+
+X_train, y_train, encoder = preprocess_data("C:\\Users\\HP\\OneDrive\\Desktop\\BTP_5thsem\\BTP\\KDDTrain+.txt", fit_encoder=True)
 
-# label_encoder = LabelEncoder()
-# y_encoded = label_encoder.fit_transform(y)
+# Load and preprocess test data from KDDTest+
+X_test, y_test, _ = preprocess_data("C:\\Users\\HP\\OneDrive\\Desktop\\BTP_5thsem\\BTP\\KDDTest+.txt", encoder=encoder)
 
 # Normalize/Standardize the data
 scaler = StandardScaler()
-X_scaled = scaler.fit_transform(X)
-
-# Split the data into training and testing sets
-X_train, X_test, y_train, y_test = train_test_split(X_scaled, y, test_size=0.2, random_state=42)
+X_train_scaled = scaler.fit_transform(X_train)
+X_test_scaled = scaler.transform(X_test)
 
 # Dimensionality Reduction with PCA
 pca = PCA(n_components=0.95)  # Retain 95% of variance
-X_train_pca = pca.fit_transform(X_train)
-X_test_pca = pca.transform(X_test)
+X_train_pca = pca.fit_transform(X_train_scaled)
+X_test_pca = pca.transform(X_test_scaled)
 
 # Feature Selection with SelectKBest
 kbest = SelectKBest(score_func=f_classif, k=25)
@@ -144,8 +147,7 @@ classifiers = {
     'RandomForest': RandomForestClassifier(n_estimators=100),
     # 'SVM': SVC(),
     # 'KNN': KNeighborsClassifier(n_neighbors=5),
-    # 'DecisionTree': DecisionTreeClassifier(),
-    # 'RandomForest': RandomForestClassifier(n_estimators=10)
+    'DecisionTree': DecisionTreeClassifier(),
     # 'Bagging': BaggingClassifier(estimator=DecisionTreeClassifier(), n_estimators=10),
     # 'Boosting': AdaBoostClassifier(estimator=DecisionTreeClassifier(), n_estimators=10),
     # 'CatBoost': catboost.CatBoostClassifier(learning_rate=0.1, depth=6, iterations=100, verbose=0),

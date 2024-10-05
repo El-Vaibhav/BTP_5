@@ -1,15 +1,27 @@
 import numpy as np
 import pywt
-import pandas as pd
-from sklearn.preprocessing import StandardScaler, OneHotEncoder
+from sklearn.preprocessing import StandardScaler
 from sklearn.model_selection import train_test_split
 from sklearn.decomposition import PCA
 from sklearn.feature_selection import SelectKBest, f_classif
-from sklearn.ensemble import RandomForestClassifier
+from sklearn.ensemble import RandomForestClassifier, BaggingClassifier, AdaBoostClassifier
+from sklearn.tree import DecisionTreeClassifier
+from sklearn.neural_network import MLPClassifier
+from sklearn.experimental import enable_hist_gradient_boosting
+from sklearn.ensemble import HistGradientBoostingClassifier
+import lightgbm as lgb
+import pandas as pd
+from sklearn.preprocessing import OneHotEncoder
+import catboost
+from sklearn.metrics import accuracy_score, confusion_matrix, classification_report
 import seaborn as sns
 import matplotlib.pyplot as plt
+import psutil
+import time
 import scipy.stats as stats
-from sklearn.metrics import accuracy_score, confusion_matrix, classification_report
+import xgboost as xgb
+from codecarbon import EmissionsTracker
+from codecarbon import EmissionsTracker
 
 # Function to preprocess WSN data and apply wavelet transform
 def preprocess_data_wsn(filepath, encoder=None, fit_encoder=False):
@@ -104,6 +116,7 @@ def preprocess_data_wsn(filepath, encoder=None, fit_encoder=False):
 # Load and preprocess data
 X, y = preprocess_data_wsn("C:\\Users\\HP\\OneDrive\\Desktop\\BTP_5thsem\\BTP\\WSN-DS.csv")
 
+
 # Normalize/Standardize the data
 scaler = StandardScaler()
 X_scaled = scaler.fit_transform(X)
@@ -126,8 +139,8 @@ classifiers = {
     'RandomForest': RandomForestClassifier(n_estimators=100),
     # 'SVM': SVC(),
     # 'KNN': KNeighborsClassifier(n_neighbors=5),
-    # 'DecisionTree': DecisionTreeClassifier(),
-    # 'RandomForest': RandomForestClassifier(n_estimators=10)
+    'DecisionTree': DecisionTreeClassifier(),
+    'RandomForest': RandomForestClassifier(n_estimators=10)
     # 'Bagging': BaggingClassifier(estimator=DecisionTreeClassifier(), n_estimators=10),
     # 'Boosting': AdaBoostClassifier(estimator=DecisionTreeClassifier(), n_estimators=10),
     # 'CatBoost': catboost.CatBoostClassifier(learning_rate=0.1, depth=6, iterations=100, verbose=0),
