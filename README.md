@@ -2,7 +2,6 @@
 
 ( Pls refer the BTP mid term presentation and Transforms_accuracy document for detailed study of the project)
 
-
 # Overview 
 
 This project focuses on developing an Intrusion Detection System (IDS) that uses Wavelet Transform for effective detection of network attacks. By Using the wavelet transform's ability to analyze both time and frequency, the IDS can identify subtle and abrupt changes in network traffic patterns. 
@@ -26,6 +25,8 @@ Below are some of the results that we got initially with simple classifiers like
 # Used Wavelet Transform
 
 We are moving from Time Domain Data to frequency domain as we believe  that mapping our data into a frequency can help detect small attacks  (possible threats) that might be ignored when using time domain data
+
+The Transforms_accuracy document will explain in detail why we are choosing wavelet transforms only ...
 
 ![image](https://github.com/user-attachments/assets/0214bfa7-c8df-4f1a-a42b-6b659f5b0fbc)
 
