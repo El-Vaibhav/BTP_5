@@ -21,5 +21,24 @@ Below are some of the results that we got initially with simple classifiers like
 
 ![image](https://github.com/user-attachments/assets/f25ae35f-da1a-418b-a250-e72ff27f6947)
 
+![image](https://github.com/user-attachments/assets/629bfad6-9297-4c21-9b8d-3b7bc0e3bc7b)
+
+# Used Wavelet Transform
+
+We are moving from Time Domain Data to frequency domain as we believe  that mapping our data into a frequency can help detect small attacks  (possible threats) that might be ignored when using time domain data
+
+![image](https://github.com/user-attachments/assets/0214bfa7-c8df-4f1a-a42b-6b659f5b0fbc)
+
+# Refrences 
+
+Fenanir, S., Semchedine, F., Baadache, A. (2019). A machine learning-based lightweight intrusion detection system for the internet of things. Revue d'Intelligence Artificielle, Vol. 33, No. 3, pp. 203-211. https://doi.org/10.18280/ria.330306
+
+Elsadig, Muawia A. "Detection of Denial-of-Service Attack in Wireless Sensor Networks: A lightweight Machine Learning Approach." IEEE Access (2023).
+      https://ieeexplore.ieee.org/stamp/stamp.jsp?arnumber=10210414
+
+Zhou, Mian, and Sheau-Dong Lang. "A frequency-based approach to intrusion detection." Proc. of the Workshop on Network Security Threats and Countermeasures. 2003.
+       https://www.researchgate.net/publication/229035248_A_Frequency-
+
+
 
 
