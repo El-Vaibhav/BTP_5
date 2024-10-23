@@ -48,6 +48,8 @@ def preprocess_data(filepath, encoder=None, fit_encoder=False):
 
     df_combined = pd.concat([df.drop(columns=[1,2,3,df.columns[-2]]), df_encoded], axis=1)
 
+    # print(df_combined.describe())
+
     # Extract labels
     labels = df[df.columns[-2]]
 
@@ -120,11 +122,22 @@ def preprocess_data(filepath, encoder=None, fit_encoder=False):
 # Load and preprocess data
 # X, y, encoder = preprocess_data("C:\\Users\\HP\\OneDrive\\Desktop\\BTP_5thsem\\BTP\\KDDTrain+.txt", fit_encoder=True)
 
-# Load and preprocess training data from KDDTrain+
-X_train, y_train, encoder = preprocess_data("C:\\Users\\HP\\OneDrive\\Desktop\\BTP_5thsem\\BTP\\KDDTrain+.txt", fit_encoder=True)
+# # Load and preprocess training data from KDDTrain+
+# X_train, y_train, encoder = preprocess_data("C:\\Users\\HP\\OneDrive\\Desktop\\BTP_5thsem\\BTP\\KDDTrain+.txt", fit_encoder=True)
 
-# Load and preprocess test data from KDDTest+
-X_test, y_test, _ = preprocess_data("C:\\Users\\HP\\OneDrive\\Desktop\\BTP_5thsem\\BTP\\KDDTest+.txt", encoder=encoder)
+# # Load and preprocess test data from KDDTest+
+# X_test, y_test, _ = preprocess_data("C:\\Users\\HP\\OneDrive\\Desktop\\BTP_5thsem\\BTP\\KDDTest+.txt", encoder=encoder)
+
+#  Load and preprocess both training and testing data
+X_train_data, y_train_data, encoder = preprocess_data("C:\\Users\\HP\\OneDrive\\Desktop\\BTP_5thsem\\BTP\\KDDTrain+.txt", fit_encoder=True)
+X_test_data, y_test_data, _ = preprocess_data("C:\\Users\\HP\\OneDrive\\Desktop\\BTP_5thsem\\BTP\\KDDTest+.txt", encoder=encoder)
+
+# Combine train and test datasets
+X_combined = np.vstack([X_train_data, X_test_data])
+y_combined = np.hstack([y_train_data, y_test_data])
+
+# Now split the combined data into train and test sets
+X_train, X_test, y_train, y_test = train_test_split(X_combined, y_combined, test_size=0.3, random_state=42)
 
 # Normalize/Standardize the data
 scaler = StandardScaler()
@@ -149,9 +162,9 @@ classifiers = {
     # 'KNN': KNeighborsClassifier(n_neighbors=5),
     'DecisionTree': DecisionTreeClassifier(),
     # 'Bagging': BaggingClassifier(estimator=DecisionTreeClassifier(), n_estimators=10),
-    # 'Boosting': AdaBoostClassifier(estimator=DecisionTreeClassifier(), n_estimators=10),
-    # 'CatBoost': catboost.CatBoostClassifier(learning_rate=0.1, depth=6, iterations=100, verbose=0),
-    # 'MLP': MLPClassifier(hidden_layer_sizes=(100, 50), max_iter=500, random_state=42),
+    'Boosting': AdaBoostClassifier(estimator=DecisionTreeClassifier(), n_estimators=10),
+    'CatBoost': catboost.CatBoostClassifier(learning_rate=0.1, depth=6, iterations=100, verbose=0),
+    'MLP': MLPClassifier(hidden_layer_sizes=(100, 50), max_iter=500, random_state=42),
 }
 
 

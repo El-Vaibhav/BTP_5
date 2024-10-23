@@ -36,6 +36,8 @@ def preprocess_data_wsn(filepath, encoder=None, fit_encoder=False):
         df_combined = pd.concat([df.drop(columns=[df.columns[-1]]), df_encoded], axis=1)
     else:
         df_combined = df.drop(columns=[df.columns[-1]])
+    
+    
 
     # Ensure all data used for wavelet transform is numeric
     numeric_df = df_combined.select_dtypes(include=[np.number])
@@ -140,11 +142,11 @@ classifiers = {
     # 'SVM': SVC(),
     # 'KNN': KNeighborsClassifier(n_neighbors=5),
     'DecisionTree': DecisionTreeClassifier(),
-    'RandomForest': RandomForestClassifier(n_estimators=10)
+    # 'RandomForest': RandomForestClassifier(n_estimators=10)
     # 'Bagging': BaggingClassifier(estimator=DecisionTreeClassifier(), n_estimators=10),
-    # 'Boosting': AdaBoostClassifier(estimator=DecisionTreeClassifier(), n_estimators=10),
-    # 'CatBoost': catboost.CatBoostClassifier(learning_rate=0.1, depth=6, iterations=100, verbose=0),
-    # 'MLP': MLPClassifier(hidden_layer_sizes=(100, 50), max_iter=500, random_state=42),
+    'Boosting': AdaBoostClassifier(estimator=DecisionTreeClassifier(), n_estimators=10),
+    'CatBoost': catboost.CatBoostClassifier(learning_rate=0.1, depth=6, iterations=100, verbose=0),
+    'MLP': MLPClassifier(hidden_layer_sizes=(100, 50), max_iter=500, random_state=42),
 }
 
 # Train and evaluate each classifier
