@@ -24,6 +24,8 @@ import xgboost as xgb
 from codecarbon import EmissionsTracker
 from codecarbon import EmissionsTracker
 import warnings
+from sklearn.neighbors import KNeighborsClassifier
+
 
 # Suppress User and Runtime warnings if necessary
 warnings.filterwarnings("ignore", category=UserWarning)
@@ -62,29 +64,27 @@ def preprocess_data(filepath, encoder=None, fit_encoder=False):
 
     for row in data_numeric:
         coeffs = pywt.wavedec(row, 'haar', level=4)  # Use 'db4' wavelet
-        coeffs_flat = np.hstack(coeffs)
+        approx_coeffs = coeffs[0]
+        detail_coeffs = coeffs[1:]
 
-        # Compute additional statistical features
-        mean_coeffs = np.mean(coeffs_flat)
-        std_dev_coeffs = np.std(coeffs_flat)
-        var_coeffs = np.var(coeffs_flat)
-        max_coeffs = np.max(coeffs_flat)
-        min_coeffs = np.min(coeffs_flat)
-        range_coeffs = max_coeffs - min_coeffs
-        mad_coeffs = np.mean(np.abs(coeffs_flat - mean_coeffs))
-        
-        percentage_dev = np.abs(coeffs_flat - mean_coeffs) / mean_coeffs * 100
-        entropy = stats.entropy(np.abs(coeffs_flat))
-        skewness_coeffs = stats.skew(coeffs_flat)
-        kurtosis_coeffs = stats.kurtosis(coeffs_flat)
+        # Combine statistical features on each subband (approximation + details)
+        subband_stats = []
+        for subband in [approx_coeffs] + detail_coeffs:
+            mean_subband = np.mean(subband)
+            std_dev_subband = np.std(subband)
+            var_subband = np.var(subband)
+            max_subband = np.max(subband)
+            min_subband = np.min(subband)
+            range_subband = max_subband - min_subband
+            mad_subband = np.mean(np.abs(subband - mean_subband))
+            skewness_subband = stats.skew(subband)
+            kurtosis_subband = stats.kurtosis(subband)
+            subband_stats.extend([mean_subband, std_dev_subband, var_subband, max_subband, min_subband,
+                                  range_subband, mad_subband, skewness_subband, kurtosis_subband])
 
-        # Store features
-        wavelet_coeffs.append(coeffs_flat)
-        additional_features.append([np.mean(percentage_dev), entropy, skewness_coeffs, kurtosis_coeffs,
-                                    mean_coeffs, std_dev_coeffs, var_coeffs, max_coeffs, min_coeffs,
-                                    range_coeffs, mad_coeffs])
+        wavelet_coeffs.append(np.hstack(coeffs))
+        additional_features.append(subband_stats)
 
-    # Convert features to numpy array
     wavelet_coeffs = np.array(wavelet_coeffs)
     additional_features = np.array(additional_features)
 
@@ -127,6 +127,8 @@ X_test_kbest = kbest.transform(X_test_pca)
 
 # Initialize classifiers with default parameters
 classifiers = {
+    'Bagging': BaggingClassifier(estimator=DecisionTreeClassifier(), n_estimators=10),
+    'KNN': KNeighborsClassifier(n_neighbors=5),
     'RandomForest': RandomForestClassifier(n_estimators=100),
     'DecisionTree': DecisionTreeClassifier(),
     'Boosting': AdaBoostClassifier(estimator=DecisionTreeClassifier(), n_estimators=10),

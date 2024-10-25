@@ -168,35 +168,163 @@ classifiers = {
 }
 
 
+# # Train and evaluate each classifier
+# for name, clf in classifiers.items():
+#     print(f"Training {name}...")
+
+#     # Start CodeCarbon tracker
+#     # tracker = EmissionsTracker()
+#     # tracker.start()
+
+#     clf.fit(X_train_kbest, y_train)
+
+
+#     # Evaluate on test data
+#     y_test_pred = clf.predict(X_test_kbest)
+#     accuracy_test = accuracy_score(y_test, y_test_pred)
+#     cm_test = confusion_matrix(y_test, y_test_pred)
+
+#     # Stop CodeCarbon tracker and get energy consumption
+#     # emissions = tracker.stop()
+
+#     # # Print energy consumption
+#     # print(f"Energy consumed for {name}: {emissions:.6f} kWh")
+
+#     # Plot confusion matrix
+#     sns.heatmap(cm_test, annot=True, fmt='d', cmap='Blues', xticklabels=np.unique(y_test),
+#                 yticklabels=np.unique(y_test))
+#     plt.title(f"Test Confusion Matrix - {name}")
+#     plt.show()
+
+#     # Print accuracy and classification report
+#     print(f"Test Accuracy of {name}: {accuracy_test:.7f}")
+#     print(classification_report(y_test, y_test_pred, zero_division=0))
+
+import matplotlib.pyplot as plt
+from sklearn.metrics import accuracy_score, precision_score, recall_score, f1_score, confusion_matrix, classification_report
+import seaborn as sns
+
+# Dictionary to store evaluation metrics for each classifier
+evaluation_metrics = {
+    'Classifier': [],
+    'Accuracy': [],
+    'Precision': [],
+    'Recall': [],
+    'F1-Score': []
+}
+
 # Train and evaluate each classifier
 for name, clf in classifiers.items():
     print(f"Training {name}...")
 
-    # Start CodeCarbon tracker
-    # tracker = EmissionsTracker()
-    # tracker.start()
-
     clf.fit(X_train_kbest, y_train)
-
 
     # Evaluate on test data
     y_test_pred = clf.predict(X_test_kbest)
+
+    # Accuracy
     accuracy_test = accuracy_score(y_test, y_test_pred)
-    cm_test = confusion_matrix(y_test, y_test_pred)
 
-    # Stop CodeCarbon tracker and get energy consumption
-    # emissions = tracker.stop()
+    # Precision, Recall, F1-Score (weighted to handle imbalance)
+    precision_test = precision_score(y_test, y_test_pred, average='weighted', zero_division=0)
+    recall_test = recall_score(y_test, y_test_pred, average='weighted', zero_division=0)
+    f1_test = f1_score(y_test, y_test_pred, average='weighted', zero_division=0)
 
-    # # Print energy consumption
-    # print(f"Energy consumed for {name}: {emissions:.6f} kWh")
+    # Store metrics
+    evaluation_metrics['Classifier'].append(name)
+    evaluation_metrics['Accuracy'].append(accuracy_test)
+    evaluation_metrics['Precision'].append(precision_test)
+    evaluation_metrics['Recall'].append(recall_test)
+    evaluation_metrics['F1-Score'].append(f1_test)
 
-    # Plot confusion matrix
-    sns.heatmap(cm_test, annot=True, fmt='d', cmap='Blues', xticklabels=np.unique(y_test),
-                yticklabels=np.unique(y_test))
-    plt.title(f"Test Confusion Matrix - {name}")
+    # # Confusion Matrix
+    # cm_test = confusion_matrix(y_test, y_test_pred)
+    
+    # # Plot confusion matrix
+    # sns.heatmap(cm_test, annot=True, fmt='d', cmap='Blues', xticklabels=np.unique(y_test),
+    #             yticklabels=np.unique(y_test))
+    # plt.title(f"Test Confusion Matrix - {name}")
+    # plt.show()
+
+    # # Print classification report
+    # print(f"Test Accuracy of {name}: {accuracy_test:.7f}")
+    # print(classification_report(y_test, y_test_pred, zero_division=0))
+
+# Preprocess and load KDDTrain+_20Percent dataset
+X_train_20p, y_train_20p, encoder_20p = preprocess_data("C:\\Users\\HP\\OneDrive\\Desktop\\BTP_5thsem\\BTP\\KDDTrain+_20Percent.txt", fit_encoder=True)
+
+# Combine train and test datasets for KDDTrain+_20Percent
+X_test_data_truncated = X_test_data[:, :158] 
+X_combined_20p = np.vstack([X_train_20p, X_test_data_truncated])
+y_combined_20p = np.hstack([y_train_20p, y_test_data])
+
+# Now split the combined data into train and test sets
+X_train_20p, X_test_20p, y_train_20p, y_test_20p = train_test_split(X_combined_20p, y_combined_20p, test_size=0.3, random_state=42)
+
+# Normalize/Standardize the data
+X_train_scaled_20p = scaler.fit_transform(X_train_20p)
+X_test_scaled_20p = scaler.transform(X_test_20p)
+
+# Apply PCA
+X_train_pca_20p = pca.fit_transform(X_train_scaled_20p)
+X_test_pca_20p = pca.transform(X_test_scaled_20p)
+
+# Apply SelectKBest
+X_train_kbest_20p = kbest.fit_transform(X_train_pca_20p, y_train_20p)
+X_test_kbest_20p = kbest.transform(X_test_pca_20p)
+
+# Dictionary to store evaluation metrics for both datasets
+evaluation_metrics_20p = {
+    'Classifier': [],
+    'Accuracy': [],
+    'Precision': [],
+    'Recall': [],
+    'F1-Score': []
+}
+
+# Train and evaluate each classifier on KDDTrain+_20Percent
+for name, clf in classifiers.items():
+    print(f"Training {name} on KDDTrain+_20Percent...")
+
+    clf.fit(X_train_kbest_20p, y_train_20p)
+
+    # Evaluate on test data
+    y_test_pred_20p = clf.predict(X_test_kbest_20p)
+
+    # Accuracy, Precision, Recall, F1-Score
+    accuracy_test_20p = accuracy_score(y_test_20p, y_test_pred_20p)
+    precision_test_20p = precision_score(y_test_20p, y_test_pred_20p, average='weighted', zero_division=0)
+    recall_test_20p = recall_score(y_test_20p, y_test_pred_20p, average='weighted', zero_division=0)
+    f1_test_20p = f1_score(y_test_20p, y_test_pred_20p, average='weighted', zero_division=0)
+
+    # Store metrics for KDDTrain+_20Percent
+    evaluation_metrics_20p['Classifier'].append(name)
+    evaluation_metrics_20p['Accuracy'].append(accuracy_test_20p)
+    evaluation_metrics_20p['Precision'].append(precision_test_20p)
+    evaluation_metrics_20p['Recall'].append(recall_test_20p)
+    evaluation_metrics_20p['F1-Score'].append(f1_test_20p)
+
+# Plot metrics comparison between KDDTrain+ and KDDTrain+_20Percent
+def plot_comparison(metric_name, values_full, values_20p, color1, color2):
+    bar_width = 0.35  # Set thinner bar width
+    index = np.arange(len(evaluation_metrics['Classifier']))
+
+    plt.figure(figsize=(12, 7))
+    plt.bar(index, values_full, bar_width, label='KDDTrain+', color=color1)
+    plt.bar(index + bar_width, values_20p, bar_width, label='KDDTrain+_20Percent', color=color2)
+
+    plt.xlabel('Classifiers')
+    plt.ylabel(metric_name)
+    plt.title(f'Comparison of {metric_name} between KDDTrain+ and KDDTrain+_20Percent')
+    plt.xticks(index + bar_width / 2, evaluation_metrics['Classifier'], rotation=45)
+    plt.legend()
+    plt.tight_layout()
     plt.show()
 
-    # Print accuracy and classification report
-    print(f"Test Accuracy of {name}: {accuracy_test:.7f}")
-    print(classification_report(y_test, y_test_pred, zero_division=0))
+# Plot bar graphs for each metric comparison
+plot_comparison('Accuracy', evaluation_metrics['Accuracy'], evaluation_metrics_20p['Accuracy'], 'blue', 'orange')
+plot_comparison('Precision', evaluation_metrics['Precision'], evaluation_metrics_20p['Precision'], 'green', 'pink')
+plot_comparison('Recall', evaluation_metrics['Recall'], evaluation_metrics_20p['Recall'], 'red', 'cyan')
+plot_comparison('F1-Score', evaluation_metrics['F1-Score'], evaluation_metrics_20p['F1-Score'], 'goldenrod', 'purple')
+
 
