@@ -237,21 +237,22 @@ for name, clf in classifiers.items():
     evaluation_metrics['Recall'].append(recall_test)
     evaluation_metrics['F1-Score'].append(f1_test)
 
-    # # Confusion Matrix
-    # cm_test = confusion_matrix(y_test, y_test_pred)
+    # Confusion Matrix
+    cm_test = confusion_matrix(y_test, y_test_pred)
     
-    # # Plot confusion matrix
-    # sns.heatmap(cm_test, annot=True, fmt='d', cmap='Blues', xticklabels=np.unique(y_test),
-    #             yticklabels=np.unique(y_test))
-    # plt.title(f"Test Confusion Matrix - {name}")
-    # plt.show()
+    # Plot confusion matrix
+    sns.heatmap(cm_test, annot=True, fmt='d', cmap='Blues', xticklabels=np.unique(y_test),
+                yticklabels=np.unique(y_test))
+    plt.title(f"Test Confusion Matrix - {name}")
+    plt.show()
 
-    # # Print classification report
-    # print(f"Test Accuracy of {name}: {accuracy_test:.7f}")
-    # print(classification_report(y_test, y_test_pred, zero_division=0))
+    # Print classification report
+    print(f"Test Accuracy of {name}: {accuracy_test:.7f}")
+    print(classification_report(y_test, y_test_pred, zero_division=0))
 
 # Preprocess and load KDDTrain+_20Percent dataset
 X_train_20p, y_train_20p, encoder_20p = preprocess_data("C:\\Users\\HP\\OneDrive\\Desktop\\BTP_5thsem\\BTP\\KDDTrain+_20Percent.txt", fit_encoder=True)
+X_test_data, y_test_data, _ = preprocess_data("C:\\Users\\HP\\OneDrive\\Desktop\\BTP_5thsem\\BTP\\KDDTest+.txt", encoder=encoder_20p)
 
 # Combine train and test datasets for KDDTrain+_20Percent
 X_test_data_truncated = X_test_data[:, :158] 
@@ -303,6 +304,18 @@ for name, clf in classifiers.items():
     evaluation_metrics_20p['Precision'].append(precision_test_20p)
     evaluation_metrics_20p['Recall'].append(recall_test_20p)
     evaluation_metrics_20p['F1-Score'].append(f1_test_20p)
+
+    cm_test = confusion_matrix(y_test_20p, y_test_pred_20p)
+    
+    # Plot confusion matrix
+    sns.heatmap(cm_test, annot=True, fmt='d', cmap='Blues', xticklabels=np.unique(y_test_20p),
+                yticklabels=np.unique(y_test_20p))
+    plt.title(f"Test Confusion Matrix - {name}")
+    plt.show()
+
+    # Print classification report
+    print(f"Test Accuracy of {name}: {accuracy_test_20p:.7f}")
+    print(classification_report(y_test_20p, y_test_pred_20p, zero_division=0))
 
 # Plot metrics comparison between KDDTrain+ and KDDTrain+_20Percent
 def plot_comparison(metric_name, values_full, values_20p, color1, color2):
