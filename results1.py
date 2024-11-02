@@ -1,6 +1,6 @@
 import numpy as np
 import matplotlib.pyplot as plt
-
+import seaborn as sns
 # Classifiers
 classifiers = ['AdaBoost', 'CatBoost', 'Random Forest', 'Decision Tree', 'MLP']
 
@@ -42,17 +42,19 @@ metrics_data = [
 # Define the labels and plot each metric without error bars
 metrics = ['Accuracy', 'Precision', 'Recall', 'F1 Score']
 n_classifiers = len(classifiers)
-bar_width = 0.2
+bar_width = 0.16
 index = np.arange(n_classifiers)
+
+viridis_palette = sns.color_palette("viridis", 8)
 
 for i, metric in enumerate(metrics):
     plt.figure(figsize=(10, 6))
     
     # Plot each dataset's bars without error bars
-    plt.bar(index, metrics_data[i][0], bar_width, color='blue', label='KDDTrain')
-    plt.bar(index + bar_width, metrics_data[i][1], bar_width, color='green', label='KDDTrain_20%')
-    plt.bar(index + 2 * bar_width, metrics_data[i][2], bar_width, color='red', label='KDDTrain with KDDTest')
-    plt.bar(index + 3 * bar_width, metrics_data[i][3], bar_width, color='purple', label='KDDTrain_20% with KDDTest')
+    plt.bar(index, metrics_data[i][0], bar_width, color=viridis_palette[0], label='KDDTrain')
+    plt.bar(index + bar_width, metrics_data[i][1], bar_width,color=viridis_palette[1], label='KDDTrain_20%')
+    plt.bar(index + 2 * bar_width, metrics_data[i][2], bar_width, color=viridis_palette[2], label='KDDTrain with KDDTest')
+    plt.bar(index + 3 * bar_width, metrics_data[i][3], bar_width, color=viridis_palette[3], label='KDDTrain_20% with KDDTest')
 
     # Add labels and title
     plt.xlabel('Classifiers')
@@ -96,7 +98,8 @@ fig, ax = plt.subplots(figsize=(12, 8))
 
 # Plot each metric error as a group of horizontal bars
 for i, (metric, error) in enumerate(zip(metrics, errors)):
-    ax.barh(x + i * bar_height, error, bar_height, label=metric)
+  ax.barh(x + i * bar_height, error, bar_height, color=viridis_palette[i+2], label=metric)
+
 
 # Customizations
 ax.set_xlabel('Average Error')
@@ -127,7 +130,7 @@ fig, ax = plt.subplots(figsize=(12, 8))
 
 # Plot each metric as a group of bars with error bars
 for i, (metric, value, error) in enumerate(zip(metrics, values, errors)):
-    ax.bar(x + i * bar_width, value, bar_width, yerr=error, label=metric, capsize=5)
+    ax.bar(x + i * bar_width, value, bar_width, yerr=error,color=viridis_palette[i+3], label=metric, capsize=5)
 
 # Customizations
 ax.set_xlabel('Classifiers')
