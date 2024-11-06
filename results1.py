@@ -130,7 +130,7 @@ fig, ax = plt.subplots(figsize=(12, 8))
 
 # Plot each metric as a group of bars with error bars
 for i, (metric, value, error) in enumerate(zip(metrics, values, errors)):
-    ax.bar(x + i * bar_width, value, bar_width, yerr=error,color=viridis_palette[i+3], label=metric, capsize=5)
+    ax.bar(x + i * bar_width, value, bar_width, yerr=error,palette='flare', label=metric, capsize=5)
 
 # Customizations
 ax.set_xlabel('Classifiers')
