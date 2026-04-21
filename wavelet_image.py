@@ -9,7 +9,7 @@ def preprocess_data(filepath, encoder=None, fit_encoder=False, plot_wavelet=Fals
     df = pd.read_csv(filepath, header=None)
 
   
-    num_rows = int(len(df) * 0.02)
+    num_rows = int(len(df) * 0.2)
 
     df = df.iloc[:num_rows]
 
@@ -84,12 +84,14 @@ def plot_wavelet_coefficients(wavelet_data, labels):
     
     # Add legend (one entry per label)
     handles = [plt.Line2D([0], [0], color=color, label=label) for label, color in label_color_map.items()]
-    plt.legend(handles=handles, loc="upper right")
+    plt.legend(handles=handles, loc="upper right",prop={'weight': 'bold', 'size': 12})
     
     plt.yscale("log")  # Optional: Log scale for better visibility
-    plt.xlabel("Coefficient Index")
-    plt.ylabel("Magnitude")
-    plt.title("Wavelet Coefficients by Label")
+    plt.xlabel("Coefficient Index",fontsize=12, fontweight='bold', color='black')
+    plt.ylabel("Magnitude",fontsize=12, fontweight='bold', color='black')
+    plt.title("Wavelet Coefficients by Label",fontsize=12, fontweight='bold', color='black')
+    plt.yticks(fontsize=12, fontweight='bold', color='black')  # Set y-axis tick labels to bold and black
+    plt.xticks(fontsize=12, fontweight='bold', color='black')
     plt.show()
 
 # Usage

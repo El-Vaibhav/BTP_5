@@ -1,6 +1,7 @@
 import numpy as np
 import matplotlib.pyplot as plt
 import seaborn as sns
+
 # Classifiers
 classifiers = ['AdaBoost', 'CatBoost', 'Random Forest', 'Decision Tree', 'MLP']
 
@@ -45,24 +46,34 @@ n_classifiers = len(classifiers)
 bar_width = 0.16
 index = np.arange(n_classifiers)
 
-viridis_palette = sns.color_palette("viridis", 8)
+# Using 'Paired' color palette for distinct colors
+tab10_palette = sns.color_palette("Paired", 6)
+tab10_palette = sns.color_palette("tab10", 6)
 
 for i, metric in enumerate(metrics):
     plt.figure(figsize=(10, 6))
     
-    # Plot each dataset's bars without error bars
-    plt.bar(index, metrics_data[i][0], bar_width, color=viridis_palette[0], label='KDDTrain')
-    plt.bar(index + bar_width, metrics_data[i][1], bar_width,color=viridis_palette[1], label='KDDTrain_20%')
-    plt.bar(index + 2 * bar_width, metrics_data[i][2], bar_width, color=viridis_palette[2], label='KDDTrain with KDDTest')
-    plt.bar(index + 3 * bar_width, metrics_data[i][3], bar_width, color=viridis_palette[3], label='KDDTrain_20% with KDDTest')
-
-    # Add labels and title
-    plt.xlabel('Classifiers')
-    plt.ylabel(metric)
-    plt.title(f'Comparison of {metric} on Different Classifiers')
+    if metric in ['Recall', 'F1 Score']:  # For horizontal bars
+        # Plot horizontal bars for Recall and F1 Score
+        plt.barh(index, metrics_data[i][0], bar_width, color=tab10_palette[0], label='KDDTrain')
+        plt.barh(index + bar_width, metrics_data[i][1], bar_width, color=tab10_palette[1], label='KDDTrain_20%')
+        plt.barh(index + 2 * bar_width, metrics_data[i][2], bar_width, color=tab10_palette[2], label='KDDTrain with KDDTest')
+        plt.barh(index + 3 * bar_width, metrics_data[i][3], bar_width, color=tab10_palette[3], label='KDDTrain_20% with KDDTest')
+        plt.xlabel(f'{metric}', fontsize=12, fontweight='bold', color='black')
+        plt.ylabel('Classifiers', fontsize=12, fontweight='bold', color='black')
+        plt.yticks(index + 1.5 * bar_width, classifiers, fontsize=12, fontweight='bold', color='black')
+    else:  # For vertical bars
+        # Plot vertical bars for Accuracy and Precision
+        plt.bar(index, metrics_data[i][0], bar_width, color=tab10_palette[0], label='KDDTrain')
+        plt.bar(index + bar_width, metrics_data[i][1], bar_width, color=tab10_palette[1], label='KDDTrain_20%')
+        plt.bar(index + 2 * bar_width, metrics_data[i][2], bar_width, color=tab10_palette[2], label='KDDTrain with KDDTest')
+        plt.bar(index + 3 * bar_width, metrics_data[i][3], bar_width, color=tab10_palette[3], label='KDDTrain_20% with KDDTest')
+        plt.xlabel('Classifiers', fontsize=12, fontweight='bold', color='black')
+        plt.ylabel(f'{metric}', fontsize=12, fontweight='bold', color='black')
+        plt.xticks(index + 1.5 * bar_width, classifiers, fontsize=12, fontweight='bold', color='black')
     
-    # Add ticks on x-axis
-    plt.xticks(index + 1.5 * bar_width, classifiers)
+    plt.title(f'Comparison of {metric} on Different Classifiers', fontsize=14, fontweight='bold', color='black')
+    plt.yticks(fontsize=12, fontweight='bold', color='black')
     
     # Add legend
     plt.legend()
@@ -71,15 +82,13 @@ for i, metric in enumerate(metrics):
     plt.tight_layout()
     plt.show()
 
-
 #  Calculate average metric values for each classifier across different datasets
 average_accuracy = np.mean([KDDTrain_accuracy, KDDTrain_20_percent_accuracy, KDDTest_accuracy, KDDTest_Train_accuracy], axis=0)
 average_precision = np.mean([KDDTrain_precision, KDDTrain_20_percent_precision, KDDTest_precision, KDDTest_Train_precision], axis=0)
 average_recall = np.mean([KDDTrain_recall, KDDTrain_20_percent_recall, KDDTest_recall, KDDTest_Train_recall], axis=0)
 average_f1 = np.mean([KDDTrain_f1, KDDTrain_20_percent_f1, KDDTest_f1, KDDTest_Train_f1], axis=0)
 
-print(average_accuracy,average_precision,average_recall,average_f1)
-
+print(average_accuracy, average_precision, average_recall, average_f1)
 
 # Calculate average errors for each metric (1 - average metric value)
 average_accuracy_error = 1 - average_accuracy
@@ -91,22 +100,21 @@ average_f1_error = 1 - average_f1
 metrics = ['Accuracy Error', 'Precision Error', 'Recall Error', 'F1 Score Error']
 errors = [average_accuracy_error, average_precision_error, average_recall_error, average_f1_error]
 
-# Plotting
+# Plotting average errors
 x = np.arange(len(classifiers))  # the label locations
 bar_height = 0.2  # height of the bars
 fig, ax = plt.subplots(figsize=(12, 8))
 
 # Plot each metric error as a group of horizontal bars
 for i, (metric, error) in enumerate(zip(metrics, errors)):
-  ax.barh(x + i * bar_height, error, bar_height, color=viridis_palette[i+2], label=metric)
+    ax.barh(x + i * bar_height, error, bar_height, color=tab10_palette[i+2], label=metric)
 
-
-# Customizations
-ax.set_xlabel('Average Error')
-ax.set_ylabel('Classifiers')
-ax.set_title('Comparison of Average Errors across Classifiers')
+# # Customizations
+ax.set_xlabel('Average Error', fontsize=12, fontweight='bold', color='black')
+ax.set_ylabel('Classifiers', fontsize=12, fontweight='bold', color='black')
+ax.set_title('Comparison of Average Errors across Classifiers', fontsize=14, fontweight='bold', color='black')
 ax.set_yticks(x + bar_height * 1.5)
-ax.set_yticklabels(classifiers)
+ax.set_yticklabels(classifiers, fontsize=12, fontweight='bold', color='black')
 ax.legend()
 
 plt.tight_layout()
@@ -123,21 +131,23 @@ metrics = ['Accuracy', 'Precision', 'Recall', 'F1 Score']
 values = [average_accuracy, average_precision, average_recall, average_f1]
 errors = [accuracy_errors, precision_errors, recall_errors, f1_errors]
 
-# Plotting
+# Plotting with error bars
 x = np.arange(len(classifiers))  # the label locations
 bar_width = 0.2  # width of the bars
 fig, ax = plt.subplots(figsize=(12, 8))
 
 # Plot each metric as a group of bars with error bars
 for i, (metric, value, error) in enumerate(zip(metrics, values, errors)):
-    ax.bar(x + i * bar_width, value, bar_width, yerr=error,palette='flare', label=metric, capsize=5)
+    ax.bar(x + i * bar_width, value, bar_width, yerr=error, color=tab10_palette[i], label=metric, capsize=5)
 
 # Customizations
-ax.set_xlabel('Classifiers')
-ax.set_ylabel('Average Score')
-ax.set_title('Comparison of Average Metrics across Classifiers')
+ax.set_xlabel('Classifiers', fontsize=12, fontweight='bold', color='black')
+ax.set_ylabel('Average Score', fontsize=12, fontweight='bold', color='black')
+ax.set_title('Comparison of Average Metrics across Classifiers', fontsize=14, fontweight='bold', color='black')
 ax.set_xticks(x + bar_width * 1.5)
-ax.set_xticklabels(classifiers)
+ax.set_xticklabels(classifiers, fontsize=12, fontweight='bold', color='black')
+ax.set_yticks(np.arange(0, 1.1, 0.1))  # Set y-axis ticks from 0 to 1 with step 0.1
+ax.set_yticklabels([f'{tick:.1f}' for tick in np.arange(0, 1.1, 0.1)], fontsize=12, fontweight='bold', color='black')  # Se
 ax.legend()
 
 plt.tight_layout()

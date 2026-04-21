@@ -3,28 +3,24 @@ import pywt
 from sklearn.preprocessing import MinMaxScaler
 from sklearn.decomposition import PCA
 from sklearn.feature_selection import SelectKBest, f_classif
-<<<<<<< Updated upstream:hybrid.py
 from sklearn.ensemble import RandomForestClassifier, BaggingClassifier, AdaBoostClassifier,StackingClassifier
 from sklearn.tree import DecisionTreeClassifier
 from sklearn.neural_network import MLPClassifier
-=======
 from sklearn.ensemble import RandomForestClassifier
->>>>>>> Stashed changes:Wavelet_NSLKDD.py
 import pandas as pd
 from sklearn.preprocessing import OneHotEncoder
 from sklearn.metrics import accuracy_score, confusion_matrix, classification_report
 import seaborn as sns
 import matplotlib.pyplot as plt
 import scipy.stats as stats
-<<<<<<< Updated upstream:hybrid.py
 import xgboost as xgb
 import warnings
+from sklearn.preprocessing import StandardScaler
+from sklearn.model_selection import train_test_split
 
 # Suppress User and Runtime warnings if necessary
 warnings.filterwarnings("ignore", category=UserWarning)
 warnings.filterwarnings("ignore", category=RuntimeWarning)
-=======
->>>>>>> Stashed changes:Wavelet_NSLKDD.py
 
 # Function to preprocess data and apply wavelet transform
 def preprocess_data(filepath, encoder=None, fit_encoder=False):
@@ -114,7 +110,7 @@ def preprocess_data(filepath, encoder=None, fit_encoder=False):
 
     return final_data, labels, encoder
 
-<<<<<<< Updated upstream:hybrid.py
+
 # Load and preprocess data
 X, y, encoder = preprocess_data("C:\\Users\\HP\\OneDrive\\Desktop\\BTP_5thsem\\BTP\\KDDTrain+_20Percent.txt", fit_encoder=True)
 
@@ -124,7 +120,7 @@ X_scaled = scaler.fit_transform(X)
 
 # Split the data into training and testing sets
 X_train, X_test, y_train, y_test = train_test_split(X_scaled, y, test_size=0.2, random_state=42)
-=======
+
 # Load and preprocess training data
 X_train, y_train, encoder = preprocess_data("C:\\Users\\tabis\\OneDrive\\Desktop\\Datasets\\KDDTrain+.txt", fit_encoder=True)
 
@@ -135,7 +131,7 @@ X_test, y_test, _ = preprocess_data("C:\\Users\\tabis\\OneDrive\\Desktop\\Datase
 scaler = MinMaxScaler()
 X_train_scaled = scaler.fit_transform(X_train)
 X_test_scaled = scaler.transform(X_test)
->>>>>>> Stashed changes:Wavelet_NSLKDD.py
+
 
 # Dimensionality Reduction with PCA
 pca = PCA(n_components=0.95)  # Retain 95% of variance
@@ -147,7 +143,7 @@ kbest = SelectKBest(score_func=f_classif, k=25)
 X_train_kbest = kbest.fit_transform(X_train_pca, y_train)
 X_test_kbest = kbest.transform(X_test_pca)
 
-<<<<<<< Updated upstream:hybrid.py
+
 # The base learners provide predictions on the data, and the final estimator uses those predictions to make a final decision.
 
 
@@ -184,7 +180,7 @@ plt.show()
 # Print accuracy and classification report
 print(f"Test Accuracy of Stacking Classifier: {accuracy_test:.7f}")
 print(classification_report(y_test, y_test_pred, zero_division=0))
-=======
+
 # Initialize classifiers with default parameters
 classifiers = {
     'RandomForest': RandomForestClassifier(n_estimators=100),
@@ -210,4 +206,4 @@ for name, clf in classifiers.items():
     # Print accuracy and classification report
     print(f"Test Accuracy of {name}: {accuracy_test:.7f}")
     print(classification_report(y_test, y_test_pred, zero_division=0))
->>>>>>> Stashed changes:Wavelet_NSLKDD.py
+
