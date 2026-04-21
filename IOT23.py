@@ -16,7 +16,7 @@ import scipy.stats as stats
 def preprocess_data_iot(filepath):
     df = pd.read_csv(filepath)
 
-    # Separate features and labels
+    # Separate features and label
     features = df.drop(columns=['label'])
     labels = df['label']
 
